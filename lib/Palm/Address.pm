@@ -1,13 +1,18 @@
-# Palm::Address.pm
-# 
-# Perl class for dealing with Palm AddressBook databases. 
+package Palm::Address;
+#
+# ABSTRACT: Handler for Palm OS AddressBook databases
 #
 #	Copyright (C) 1999, 2000, Andrew Arensburger.
-#	You may distribute this file under the terms of the Artistic
-#	License, as specified in the README file.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the same terms as Perl itself.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See either the
+# GNU General Public License or the Artistic License for more details.
 
 use strict;
-package Palm::Address;
 use Palm::Raw();
 use Palm::StdAppInfo();
 
@@ -16,139 +21,14 @@ use vars qw( $VERSION @ISA
 	%fieldMapBits );
 
 # One liner, to allow MakeMaker to work.
-$VERSION = '1.013';
+$VERSION = '1.014';
+# This file is part of Palm 1.014 (August 2, 2014)
 
 @ISA = qw( Palm::StdAppInfo Palm::Raw );
 
 # AddressDB records are quite flexible and customizable, and therefore
 # a pain in the ass to deal with correctly.
 
-=head1 NAME
-
-Palm::Address - Handler for Palm AddressBook databases
-
-=head1 SYNOPSIS
-
-    use Palm::Address;
-
-=head1 DESCRIPTION
-
-The Address PDB handler is a helper class for the Palm::PDB package.
-It parses AddressBook databases.
-
-=head2 AppInfo block
-
-The AppInfo block begins with standard category support. See
-L<Palm::StdAppInfo> for details.
-
-Other fields include:
-
-    $pdb->{appinfo}{lastUniqueID}
-    $pdb->{appinfo}{dirtyFields}
-
-I don't know what these are.
-
-    $pdb->{appinfo}{fieldLabels}{name}
-    $pdb->{appinfo}{fieldLabels}{firstName}
-    $pdb->{appinfo}{fieldLabels}{company}
-    $pdb->{appinfo}{fieldLabels}{phone1}
-    $pdb->{appinfo}{fieldLabels}{phone2}
-    $pdb->{appinfo}{fieldLabels}{phone3}
-    $pdb->{appinfo}{fieldLabels}{phone4}
-    $pdb->{appinfo}{fieldLabels}{phone5}
-    $pdb->{appinfo}{fieldLabels}{phone6}
-    $pdb->{appinfo}{fieldLabels}{phone7}
-    $pdb->{appinfo}{fieldLabels}{phone8}
-    $pdb->{appinfo}{fieldLabels}{address}
-    $pdb->{appinfo}{fieldLabels}{city}
-    $pdb->{appinfo}{fieldLabels}{state}
-    $pdb->{appinfo}{fieldLabels}{zipCode}
-    $pdb->{appinfo}{fieldLabels}{country}
-    $pdb->{appinfo}{fieldLabels}{title}
-    $pdb->{appinfo}{fieldLabels}{custom1}
-    $pdb->{appinfo}{fieldLabels}{custom2}
-    $pdb->{appinfo}{fieldLabels}{custom3}
-    $pdb->{appinfo}{fieldLabels}{custom4}
-    $pdb->{appinfo}{fieldLabels}{note}
-
-These are the names of the various fields in the address record.
-
-    $pdb->{appinfo}{country}
-
-An integer: the code for the country for which these labels were
-designed. The country name is available as
-
-        $Palm::Address::countries[$pdb->{appinfo}{country}];
-
-    $pdb->{appinfo}{misc}
-
-An integer. The least-significant bit is a flag that indicates whether
-the database should be sorted by company. The other bits are reserved.
-
-=head2 Sort block
-
-    $pdb->{sort}
-
-This is a scalar, the raw data of the sort block.
-
-=head2 Records
-
-    $record = $pdb->{records}[N];
-
-    $record->{fields}{name}
-    $record->{fields}{firstName}
-    $record->{fields}{company}
-    $record->{fields}{phone1}
-    $record->{fields}{phone2}
-    $record->{fields}{phone3}
-    $record->{fields}{phone4}
-    $record->{fields}{phone5}
-    $record->{fields}{address}
-    $record->{fields}{city}
-    $record->{fields}{state}
-    $record->{fields}{zipCode}
-    $record->{fields}{country}
-    $record->{fields}{title}
-    $record->{fields}{custom1}
-    $record->{fields}{custom2}
-    $record->{fields}{custom3}
-    $record->{fields}{custom4}
-    $record->{fields}{note}
-
-These are scalars, the values of the various address book fields.
-
-    $record->{phoneLabel}{phone1}
-    $record->{phoneLabel}{phone2}
-    $record->{phoneLabel}{phone3}
-    $record->{phoneLabel}{phone4}
-    $record->{phoneLabel}{phone5}
-
-Most fields in an AddressBook record are straightforward: the "name"
-field always gives the person's last name.
-
-The "phoneI<N>" fields, on the other hand, can mean different things
-in different records. There are five such fields in each record, each
-of which can take on one of eight different values: "Work", "Home",
-"Fax", "Other", "E-mail", "Main", "Pager" and "Mobile".
-
-The $record->{phoneLabel}{phone*} fields are integers. Each one is
-an index into @Palm::Address::phoneLabels, and indicates which
-particular type of phone number each of the $record->{phone*} fields
-represents.
-
-    $record->{phoneLabel}{display}
-
-Like the phone* fields above, this is an index into
-@Palm::Address::phoneLabels. It indicates which of the phone*
-fields to display in the list view.
-
-    $record->{phoneLabel}{reserved}
-
-I don't know what this is.
-
-=head1 METHODS
-
-=cut
 #'
 
 $addrLabelLength = 16;
@@ -225,16 +105,6 @@ sub import
 		);
 }
 
-=head2 new
-
-  $pdb = new Palm::Address;
-
-Create a new PDB, initialized with the various Palm::Address fields
-and an empty record list.
-
-Use this method if you're creating an Address PDB from scratch.
-
-=cut
 #'
 
 # new
@@ -305,17 +175,6 @@ sub new
 	return $self;
 }
 
-=head2 new_Record
-
-  $record = $pdb->new_Record;
-
-Creates a new Address record, with blank values for all of the fields.
-The AppInfo block will contain only an "Unfiled" category, with ID 0.
-
-C<new_Record> does B<not> add the new record to C<$pdb>. For that,
-you want C<$pdb-E<gt>append_Record>.
-
-=cut
 
 # new_Record
 # Create a new, initialized record.
@@ -328,7 +187,7 @@ sub new_Record
 	# but every AddressDB record has these.
 	$retval->{fields} = {
 		name		=> undef,
-		firstName	=> undef, 
+		firstName	=> undef,
 		company		=> undef,
 		phone1		=> undef,
 		phone2		=> undef,
@@ -632,10 +491,10 @@ sub PackRecord
 		{
 			$fieldMap |= $fieldMapBits{$fieldname};
 		}
-		else 
-		{ 
-			$record->{fields}{$fieldname} = ""; 
-		} 
+		else
+		{
+			$record->{fields}{$fieldname} = "";
+		}
 	}
 
 	$retval .= pack("N", $fieldMap);
@@ -673,29 +532,220 @@ sub PackRecord
 }
 
 1;
+
 __END__
 
-=head1 SOURCE CONTROL
+=head1 NAME
 
-The source is in Github:
+Palm::Address - Handler for Palm OS AddressBook databases
 
-	http://github.com/briandfoy/p5-Palm/tree/master
-	
-=head1 AUTHOR
+=head1 VERSION
 
-Alessandro Zummo, C<< <a.zummo@towertech.it> >>
+This document describes version 1.014 of
+Palm::Address, released August 2, 2014
+as part of Palm version 1.014.
 
-Currently maintained by brian d foy, C<< <bdfoy@cpan.org> >>
+=head1 SYNOPSIS
+
+    use Palm::Address;
+
+=head1 DESCRIPTION
+
+The Address PDB handler is a helper class for the Palm::PDB package.
+It parses AddressBook databases.
+
+=head2 AppInfo block
+
+The AppInfo block begins with standard category support. See
+L<Palm::StdAppInfo> for details.
+
+Other fields include:
+
+    $pdb->{appinfo}{lastUniqueID}
+    $pdb->{appinfo}{dirtyFields}
+
+I don't know what these are.
+
+    $pdb->{appinfo}{fieldLabels}{name}
+    $pdb->{appinfo}{fieldLabels}{firstName}
+    $pdb->{appinfo}{fieldLabels}{company}
+    $pdb->{appinfo}{fieldLabels}{phone1}
+    $pdb->{appinfo}{fieldLabels}{phone2}
+    $pdb->{appinfo}{fieldLabels}{phone3}
+    $pdb->{appinfo}{fieldLabels}{phone4}
+    $pdb->{appinfo}{fieldLabels}{phone5}
+    $pdb->{appinfo}{fieldLabels}{phone6}
+    $pdb->{appinfo}{fieldLabels}{phone7}
+    $pdb->{appinfo}{fieldLabels}{phone8}
+    $pdb->{appinfo}{fieldLabels}{address}
+    $pdb->{appinfo}{fieldLabels}{city}
+    $pdb->{appinfo}{fieldLabels}{state}
+    $pdb->{appinfo}{fieldLabels}{zipCode}
+    $pdb->{appinfo}{fieldLabels}{country}
+    $pdb->{appinfo}{fieldLabels}{title}
+    $pdb->{appinfo}{fieldLabels}{custom1}
+    $pdb->{appinfo}{fieldLabels}{custom2}
+    $pdb->{appinfo}{fieldLabels}{custom3}
+    $pdb->{appinfo}{fieldLabels}{custom4}
+    $pdb->{appinfo}{fieldLabels}{note}
+
+These are the names of the various fields in the address record.
+
+    $pdb->{appinfo}{country}
+
+An integer: the code for the country for which these labels were
+designed. The country name is available as
+
+        $Palm::Address::countries[$pdb->{appinfo}{country}];
+
+    $pdb->{appinfo}{misc}
+
+An integer. The least-significant bit is a flag that indicates whether
+the database should be sorted by company. The other bits are reserved.
+
+=head2 Sort block
+
+    $pdb->{sort}
+
+This is a scalar, the raw data of the sort block.
+
+=head2 Records
+
+    $record = $pdb->{records}[N];
+
+    $record->{fields}{name}
+    $record->{fields}{firstName}
+    $record->{fields}{company}
+    $record->{fields}{phone1}
+    $record->{fields}{phone2}
+    $record->{fields}{phone3}
+    $record->{fields}{phone4}
+    $record->{fields}{phone5}
+    $record->{fields}{address}
+    $record->{fields}{city}
+    $record->{fields}{state}
+    $record->{fields}{zipCode}
+    $record->{fields}{country}
+    $record->{fields}{title}
+    $record->{fields}{custom1}
+    $record->{fields}{custom2}
+    $record->{fields}{custom3}
+    $record->{fields}{custom4}
+    $record->{fields}{note}
+
+These are scalars, the values of the various address book fields.
+
+    $record->{phoneLabel}{phone1}
+    $record->{phoneLabel}{phone2}
+    $record->{phoneLabel}{phone3}
+    $record->{phoneLabel}{phone4}
+    $record->{phoneLabel}{phone5}
+
+Most fields in an AddressBook record are straightforward: the "name"
+field always gives the person's last name.
+
+The "phoneI<N>" fields, on the other hand, can mean different things
+in different records. There are five such fields in each record, each
+of which can take on one of eight different values: "Work", "Home",
+"Fax", "Other", "E-mail", "Main", "Pager" and "Mobile".
+
+The $record->{phoneLabel}{phone*} fields are integers. Each one is
+an index into @Palm::Address::phoneLabels, and indicates which
+particular type of phone number each of the $record->{phone*} fields
+represents.
+
+    $record->{phoneLabel}{display}
+
+Like the phone* fields above, this is an index into
+@Palm::Address::phoneLabels. It indicates which of the phone*
+fields to display in the list view.
+
+    $record->{phoneLabel}{reserved}
+
+I don't know what this is.
+
+=head1 METHODS
+
+=head2 new
+
+  $pdb = new Palm::Address;
+
+Create a new PDB, initialized with the various Palm::Address fields
+and an empty record list.
+
+Use this method if you're creating an Address PDB from scratch.
+
+=head2 new_Record
+
+  $record = $pdb->new_Record;
+
+Creates a new Address record, with blank values for all of the fields.
+The AppInfo block will contain only an "Unfiled" category, with ID 0.
+
+C<new_Record> does B<not> add the new record to C<$pdb>. For that,
+you want C<$pdb-E<gt>append_Record>.
 
 =head1 SEE ALSO
 
-Palm::PDB(3)
+L<Palm::PDB>
 
-Palm::StdAppInfo(3)
+L<Palm::StdAppInfo>
 
-=head1 BUGS
+=head1 CONFIGURATION AND ENVIRONMENT
 
-The new() method initializes the AppInfo block with English labels and
+Palm::Address requires no configuration files or environment variables.
+
+=head1 INCOMPATIBILITIES
+
+None reported.
+
+=head1 BUGS AND LIMITATIONS
+
+The C<new()> method initializes the AppInfo block with English labels and
 "United States" as the country.
+
+=head1 AUTHOR
+
+Andrew Arensburger C<< <arensb AT ooblick.com> >>
+
+Currently maintained by Christopher J. Madsen C<< <perl AT cjmweb.net> >>
+
+Please report any bugs or feature requests
+to S<C<< <bug-Palm AT rt.cpan.org> >>>
+or through the web interface at
+L<< http://rt.cpan.org/Public/Bug/Report.html?Queue=Palm >>.
+
+You can follow or contribute to p5-Palm's development at
+L<< https://github.com/madsen/p5-Palm >>.
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2003 by Andrew Arensburger & Alessandro Zummo.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENSE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
 
 =cut

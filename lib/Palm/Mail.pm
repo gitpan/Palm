@@ -1,113 +1,28 @@
-# Palm::Mail.pm
-# 
-# Perl class for dealing with Palm Mail databases. 
+package Palm::Mail;
+#
+# ABSTRACT: Handler for Palm OS Mail databases
 #
 #	Copyright (C) 1999, 2000, Andrew Arensburger.
-#	You may distribute this file under the terms of the Artistic
-#	License, as specified in the README file.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the same terms as Perl itself.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See either the
+# GNU General Public License or the Artistic License for more details.
 
 use strict;
-package Palm::Mail;
 use Palm::Raw();
 use Palm::StdAppInfo();
 use vars qw( $VERSION @ISA );
 
 # One liner, to allow MakeMaker to work.
-$VERSION = '1.013';
+$VERSION = '1.014';
+# This file is part of Palm 1.014 (August 2, 2014)
 
 @ISA = qw( Palm::StdAppInfo Palm::Raw );
 
-=head1 NAME
-
-Palm::Mail - Handler for Palm Mail databases.
-
-=head1 SYNOPSIS
-
-    use Palm::Mail;
-
-=head1 DESCRIPTION
-
-The Mail PDB handler is a helper class for the Palm::PDB package. It
-parses Mail databases.
-
-=head2 AppInfo block
-
-The AppInfo block begins with standard category support. See
-L<Palm::StdAppInfo> for details.
-
-Other fields include:
-
-    $pdb->{appinfo}{sortOrder}
-    $pdb->{appinfo}{unsent}
-    $pdb->{appinfo}{sigOffset}
-
-I don't know what these are.
-
-=head2 Sort block
-
-    $pdb->{sort}
-
-This is a scalar, the raw data of the sort block.
-
-=head2 Records
-
-    $record = $pdb->{records}[N]
-
-    $record->{year}
-    $record->{month}
-    $record->{day}
-    $record->{hour}
-    $record->{minute}
-
-The message's timestamp.
-
-    $record->{is_read}
-
-This is defined and true iff the message has been read.
-
-    $record->{has_signature}
-
-For outgoing messages, this is defined and true iff the message should
-have a signature attached. The signature itself is stored in the
-"Saved Preferences.prc" database, and is of type "mail" with ID 2.
-
-    $record->{confirm_read}
-
-If this is defined and true, then the sender requests notification
-when the message has been read.
-
-    $record->{confirm_delivery}
-
-If this is defined and true, then the sender requests notification
-when the message has been delivered.
-
-    $record->{priority}
-
-An integer in the range 0-2, for high, normal, or low priority,
-respectively.
-
-    $record->{addressing}
-
-An integer in the range 0-2, indicating the addressing type: To, Cc,
-or Bcc respectively. I don't know what this means.
-
-    $record->{subject}
-    $record->{from}
-    $record->{to}
-    $record->{cc}
-    $record->{bcc}
-    $record->{replyTo}
-    $record->{sentTo}
-
-Strings, the various header fields.
-
-    $record->{body}
-
-A string, the body of the message.
-
-=head1 METHODS
-
-=cut
 #'
 
 sub import
@@ -117,16 +32,6 @@ sub import
 		);
 }
 
-=head2 new
-
-  $pdb = new Palm::Mail;
-
-Create a new PDB, initialized with the various Palm::Mail fields
-and an empty record list.
-
-Use this method if you're creating a Mail PDB from scratch.
-
-=cut
 #'
 
 sub new
@@ -161,21 +66,6 @@ sub new
 	return $self;
 }
 
-=head2 new_Record
-
-  $record = $pdb->new_Record;
-
-Creates a new Mail record, with blank values for all of the fields.
-
-C<new_Record> does B<not> add the new record to C<$pdb>. For that,
-you want C<$pdb-E<gt>append_Record>.
-
-Note: the time given by the C<year>, C<month>, C<day>, C<hour>, and
-C<minute> fields in the new record are initialized to the time when
-the record was created. They should be reset to the time when the
-message was sent.
-
-=cut
 
 sub new_Record
 {
@@ -421,24 +311,188 @@ sub PackRecord
 }
 
 1;
+
 __END__
 
-=head1 SOURCE CONTROL
+=head1 NAME
 
-The source is in Github:
+Palm::Mail - Handler for Palm OS Mail databases
 
-	http://github.com/briandfoy/p5-Palm/tree/master
-	
-=head1 AUTHOR
+=head1 VERSION
 
-Alessandro Zummo, C<< <a.zummo@towertech.it> >>
+This document describes version 1.014 of
+Palm::Mail, released August 2, 2014
+as part of Palm version 1.014.
 
-Currently maintained by brian d foy, C<< <bdfoy@cpan.org> >>
+=head1 SYNOPSIS
+
+    use Palm::Mail;
+
+=head1 DESCRIPTION
+
+The Mail PDB handler is a helper class for the Palm::PDB package. It
+parses Mail databases.
+
+=head2 AppInfo block
+
+The AppInfo block begins with standard category support. See
+L<Palm::StdAppInfo> for details.
+
+Other fields include:
+
+    $pdb->{appinfo}{sortOrder}
+    $pdb->{appinfo}{unsent}
+    $pdb->{appinfo}{sigOffset}
+
+I don't know what these are.
+
+=head2 Sort block
+
+    $pdb->{sort}
+
+This is a scalar, the raw data of the sort block.
+
+=head2 Records
+
+    $record = $pdb->{records}[N]
+
+    $record->{year}
+    $record->{month}
+    $record->{day}
+    $record->{hour}
+    $record->{minute}
+
+The message's timestamp.
+
+    $record->{is_read}
+
+This is defined and true iff the message has been read.
+
+    $record->{has_signature}
+
+For outgoing messages, this is defined and true iff the message should
+have a signature attached. The signature itself is stored in the
+"Saved Preferences.prc" database, and is of type "mail" with ID 2.
+
+    $record->{confirm_read}
+
+If this is defined and true, then the sender requests notification
+when the message has been read.
+
+    $record->{confirm_delivery}
+
+If this is defined and true, then the sender requests notification
+when the message has been delivered.
+
+    $record->{priority}
+
+An integer in the range 0-2, for high, normal, or low priority,
+respectively.
+
+    $record->{addressing}
+
+An integer in the range 0-2, indicating the addressing type: To, Cc,
+or Bcc respectively. I don't know what this means.
+
+    $record->{subject}
+    $record->{from}
+    $record->{to}
+    $record->{cc}
+    $record->{bcc}
+    $record->{replyTo}
+    $record->{sentTo}
+
+Strings, the various header fields.
+
+    $record->{body}
+
+A string, the body of the message.
+
+=head1 METHODS
+
+=head2 new
+
+  $pdb = new Palm::Mail;
+
+Create a new PDB, initialized with the various Palm::Mail fields
+and an empty record list.
+
+Use this method if you're creating a Mail PDB from scratch.
+
+=head2 new_Record
+
+  $record = $pdb->new_Record;
+
+Creates a new Mail record, with blank values for all of the fields.
+
+C<new_Record> does B<not> add the new record to C<$pdb>. For that,
+you want C<$pdb-E<gt>append_Record>.
+
+Note: the time given by the C<year>, C<month>, C<day>, C<hour>, and
+C<minute> fields in the new record are initialized to the time when
+the record was created. They should be reset to the time when the
+message was sent.
 
 =head1 SEE ALSO
 
-Palm::PDB(3)
+L<Palm::PDB>
 
-Palm::StdAppInfo(3)
+L<Palm::StdAppInfo>
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Palm::Mail requires no configuration files or environment variables.
+
+=head1 INCOMPATIBILITIES
+
+None reported.
+
+=head1 BUGS AND LIMITATIONS
+
+No bugs have been reported.
+
+=head1 AUTHOR
+
+Andrew Arensburger C<< <arensb AT ooblick.com> >>
+
+Currently maintained by Christopher J. Madsen C<< <perl AT cjmweb.net> >>
+
+Please report any bugs or feature requests
+to S<C<< <bug-Palm AT rt.cpan.org> >>>
+or through the web interface at
+L<< http://rt.cpan.org/Public/Bug/Report.html?Queue=Palm >>.
+
+You can follow or contribute to p5-Palm's development at
+L<< https://github.com/madsen/p5-Palm >>.
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2003 by Andrew Arensburger & Alessandro Zummo.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENSE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
 
 =cut

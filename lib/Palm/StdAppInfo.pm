@@ -1,13 +1,18 @@
-# Palm::StdAppInfo.pm
+package Palm::StdAppInfo;
 #
-# Class for dealing with standard AppInfo blocks in PDBs.
+# ABSTRACT: Handle standard AppInfo blocks in Palm OS PDBs
 #
 #	Copyright (C) 1999, 2000, Andrew Arensburger.
-#	You may distribute this file under the terms of the Artistic
-#	License, as specified in the README file.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the same terms as Perl itself.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See either the
+# GNU General Public License or the Artistic License for more details.
 
 use strict;
-package Palm::StdAppInfo;
 use Palm::Raw();
 
 # Don't harass me about these variables
@@ -15,115 +20,11 @@ use vars qw( $VERSION @ISA $error );
 	# $error acts like $! in that it reports the error that occurred
 
 # One liner, to allow MakeMaker to work.
-$VERSION = '1.013';
+$VERSION = '1.014';
+# This file is part of Palm 1.014 (August 2, 2014)
 
 @ISA = qw( Palm::Raw );
 
-=head1 NAME
-
-Palm::StdAppInfo - Handles standard AppInfo block (categories)
-
-=head1 SYNOPSIS
-
-Usually:
-
-    package MyPDBHandler;
-    use Palm::StdAppInfo();		# Note the parentheses
-
-    @ISA = qw( Palm::StdAppInfo );
-
-    use constant APPINFO_PADDING = 1;
-
-    sub ParseAppInfoBlock {
-	my $self = shift;
-	my $data = shift;
-	my $appinfo = {};
-
-	&Palm::StdAppInfo::parse_StdAppInfo($appinfo, $data);
-
-	$app_specific_data = $appinfo->{other};
-    }
-
-    sub PackAppInfoBlock {
-	my $self = shift;
-	my $retval;
-
-	$self->{appinfo}{other} = <pack application-specific data>;
-	$retval = &Palm::StdAppInfo::pack_StdAppInfo($self->{appinfo});
-	return $retval;
-    }
-
-Or as a standalone C<PDB> helper class:
-
-    use Palm::StdAppInfo;
-
-=head1 DESCRIPTION
-
-Many Palm applications use a common format for keeping track of categories.
-The C<Palm::StdAppInfo> class deals with this common format:
-
-	$pdb = new Palm::PDB;
-	$pdb->Load("myfile.pdb");
-
-	@categories   = @{$pdb->{appinfo}{categories}};
-	$lastUniqueID =   $pdb->{appinfo}{lastUniqueID};
-	$other        =   $pdb->{appinfo}{other};
-
-where:
-
-C<@categories> is an array of references-to-hash:
-
-=over 4
-
-=item C<$cat = $categories[0];>
-
-=item C<$cat-E<gt>{name}>
-
-The name of the category, a string of at most 16 characters.
-
-=item C<$cat-E<gt>{id}>
-
-The category ID, an integer in the range 0-255. Each category has a
-unique ID. By convention, 0 is reserved for the "Unfiled" category;
-IDs assigned by the Palm are in the range 1-127, and IDs assigned by
-the desktop are in the range 128-255.
-
-=item C<$cat-E<gt>{renamed}>
-
-A boolean. This field is true iff the category has been renamed since
-the last sync.
-
-=back
-
-C<$lastUniqueID> is (I think) the last category ID that was assigned.
-
-C<$other> is any data that follows the category list in the AppInfo
-block. If you're writing a helper class for a PDB that includes a
-category list, you should parse this field to get any data that
-follows the category list; you should also make sure that this field
-is initialized before you call C<&Palm::StdAppInfo::pack_AppInfo>.
-
-=head2 APPINFO_PADDING
-
-Normally, the AppInfo block includes a byte of padding at the end, to
-bring its length to an even number. However, some databases use this
-byte for data.
-
-If your database uses the padding byte for data, then your
-C<&ParseAppInfoBlock> method (see L<"SYNOPSIS">) should call
-C<&parse_StdAppInfo> with a true $nopadding argument.
-
-If, for whatever reason, you wish to inherit
-C<&StdAppInfo::ParseAppInfoBlock>, then add
-
-    use constant APPINFO_PADDING => 0;
-
-to your handler package, to tell it that the padding byte is really
-data.
-
-=head1 FUNCTIONS
-
-=cut
 #'
 
 use constant APPINFO_PADDING => 1;	# Whether to add the padding byte at
@@ -141,7 +42,7 @@ use constant APPINFO_PADDING => 1;	# Whether to add the padding byte at
 use constant numCategories => 16;	# Number of categories in AppInfo block
 use constant categoryLength => 16;	# Length of category names
 use constant stdAppInfoSize =>		# Length of a standard AppInfo block
-		2 +	
+		2 +
 		(categoryLength * numCategories) +
 		numCategories +
 		1 + 1;			# The padding byte at the end may
@@ -154,21 +55,6 @@ sub import
 		);
 }
 
-=head2 seed_StdAppInfo
-
-    &Palm::StdAppInfo::seed_StdAppInfo(\%appinfo);
-
-Creates the standard fields in an existing AppInfo hash. Usually used
-to ensure that a newly-created AppInfo block contains an initialized
-category array:
-
-	my $appinfo = {};
-
-	&Palm::StdAppInfo::seed_StdAppInfo($appinfo);
-
-Note: this is not a method.
-
-=cut
 
 # seed_StdAppInfo
 # *** THIS IS NOT A METHOD ***
@@ -203,14 +89,6 @@ sub seed_StdAppInfo
 	$appinfo->{lastUniqueID} = numCategories - 1;
 }
 
-=head2 newStdAppInfo
-
-    $appinfo = Palm::StdAppInfo->newStdAppInfo;
-
-Like C<seed_StdAppInfo>, but creates an AppInfo hash and returns a
-reference to it.
-
-=cut
 
 sub newStdAppInfo
 {
@@ -221,18 +99,6 @@ sub newStdAppInfo
 	return $retval;
 }
 
-=head2 new
-
-    $pdb = new Palm::StdAppInfo;
-
-Create a new PDB, initialized with nothing but a standard AppInfo block.
-
-There are very few reasons to use this, and even fewer good ones. If
-you're writing a helper class to parse some PDB format that contains a
-category list, then you should make that helper class a subclass of
-C<Palm::StdAppInfo>.
-
-=cut
 #'
 
 sub new
@@ -248,24 +114,6 @@ sub new
 	return $self;
 }
 
-=head2 parse_StdAppInfo
-
-    $len = &Palm::StdAppInfo::parse_StdAppInfo(\%appinfo, $data, $nopadding);
-
-This function (this is not a method) is intended to be called from
-within a PDB helper class's C<ParseAppInfoBlock> method.
-
-C<parse_StdAppInfo()> parses a standard AppInfo block from the raw
-data C<$data> and fills in the fields in C<%appinfo>. It returns the
-number of bytes parsed.
-
-C<$nopadding> is optional, and defaults to false. Normally, the
-AppInfo block includes a padding byte at the end. If C<$nopadding> is
-true, then C<&parse_StdAppInfo> assumes that the padding byte is
-application data, and includes it in C<$appinfo{'other'}>, so that the
-caller can parse it.
-
-=cut
 #'
 
 # parse_StdAppInfo
@@ -341,17 +189,6 @@ sub parse_StdAppInfo
 	return ($nopadding ? stdAppInfoSize - 1 : stdAppInfoSize);
 }
 
-=head2 ParseAppInfoBlock
-
-    $pdb = new Palm::StdAppInfo;
-    $pdb->ParseAppInfoBlock($data);
-
-If your application's AppInfo block contains standard category support
-and nothing else, you may choose to just inherit this method instead
-of writing your own C<ParseAppInfoBlock> method. Otherwise, see the
-example in L<"SYNOPSIS">.
-
-=cut
 #'
 
 sub ParseAppInfoBlock
@@ -365,27 +202,6 @@ sub ParseAppInfoBlock
 	return $appinfo;
 }
 
-=head2 pack_StdAppInfo
-
-    $data = &Palm::StdAppInfo::pack_StdAppInfo(\%appinfo);
-
-This function (this is not a method) is intended to be called from
-within a PDB helper class's C<PackAppInfoBlock> method.
-
-C<pack_StdAppInfo> takes an AppInfo hash and packs it as a string of
-raw data that can be written to a PDB.
-
-Note that if you're using this inside a helper class's
-C<PackAppInfoBlock> method, you should make sure that
-C<$appinfo{other}> is properly initialized before you call
-C<&Palm::StdAppInfo::pack_StdAppInfo>.
-
-C<$nopadding> is optional, and defaults to false. Normally, the
-AppInfo block includes a byte of padding at the end. If C<$nopadding>
-is true, then C<&pack_StdAppInfo> doesn't include this byte of
-padding, so that the application can use it.
-
-=cut
 #'
 
 # pack_StdAppInfo
@@ -450,17 +266,6 @@ sub pack_StdAppInfo
 	return $retval;
 }
 
-=head2 PackAppInfoBlock
-
-    $pdb = new Palm::StdAppInfo;
-    $data = $pdb->PackAppInfoBlock();
-
-If your application's AppInfo block contains standard category support
-and nothing else, you may choose to just inherit this method instead
-of writing your own C<PackAppInfoBlock> method. Otherwise, see the
-example in L<"SYNOPSIS">.
-
-=cut
 #'
 
 sub PackAppInfoBlock
@@ -470,28 +275,6 @@ sub PackAppInfoBlock
 	return &pack_StdAppInfo($self->{appinfo}, $self->{APPINFO_PADDING});
 }
 
-=head2 addCategory
-
-    $pdb->addCategory($name [, $id [, $renamed]]);
-
-Adds a category to $pdb.
-
-The $name argument specifies the new category's name.
-
-The optional $id argument specifies the new category's numeric ID; if
-omitted or undefined, &addCategory will pick one.
-
-The optional $renamed argument is a boolean value indicating whether
-the new category should be marked as having been modified. This
-defaults to true since, conceptually, &addCategory doesn't really add
-a category: it finds one whose name happens to be empty, and renames
-it.
-
-Returns a true value if successful, false otherwise. In case of
-failure, &addCategory sets $Palm::StdAppInfo::error to an error
-message.
-
-=cut
 #'
 # XXX - When choosing a new category ID, should pick them from the
 # range 128-255.
@@ -551,15 +334,6 @@ sub addCategory
 	return undef;
 }
 
-=head2 deleteCategory
-
-    $pdb->deleteCategory($name);
-
-Deletes the category with name $name. Actually, though, it doesn't
-delete the category: it just changes its name to the empty string, and
-marks the category as renamed.
-
-=cut
 #'
 sub deleteCategory
 {
@@ -579,17 +353,6 @@ sub deleteCategory
 	}
 }
 
-=head2 renameCategory
-
-    $pdb->renameCategory($oldname, $newname);
-
-Renames the category named $oldname to $newname.
-
-If successful, returns a true value. If there is no category named
-$oldname, returns a false value and sets $Palm::StdAppInfo::error to
-an error message.
-
-=cut
 #'
 # XXX - This doesn't behave the same way as the Palm: the Palm also
 # picks a new category ID.
@@ -615,22 +378,305 @@ sub renameCategory
 }
 
 1;
+
 __END__
 
-=head1 SOURCE CONTROL
+=head1 NAME
 
-The source is in Github:
+Palm::StdAppInfo - Handle standard AppInfo blocks in Palm OS PDBs
 
-	http://github.com/briandfoy/p5-Palm/tree/master
-	
-=head1 AUTHOR
+=head1 VERSION
 
-Alessandro Zummo, C<< <a.zummo@towertech.it> >>
+This document describes version 1.014 of
+Palm::StdAppInfo, released August 2, 2014
+as part of Palm version 1.014.
 
-Currently maintained by brian d foy, C<< <bdfoy@cpan.org> >>
+=head1 SYNOPSIS
+
+Usually:
+
+    package MyPDBHandler;
+    use Palm::StdAppInfo();		# Note the parentheses
+
+    @ISA = qw( Palm::StdAppInfo );
+
+    use constant APPINFO_PADDING = 1;
+
+    sub ParseAppInfoBlock {
+	my $self = shift;
+	my $data = shift;
+	my $appinfo = {};
+
+	&Palm::StdAppInfo::parse_StdAppInfo($appinfo, $data);
+
+	$app_specific_data = $appinfo->{other};
+    }
+
+    sub PackAppInfoBlock {
+	my $self = shift;
+	my $retval;
+
+	$self->{appinfo}{other} = <pack application-specific data>;
+	$retval = &Palm::StdAppInfo::pack_StdAppInfo($self->{appinfo});
+	return $retval;
+    }
+
+Or as a standalone C<PDB> helper class:
+
+    use Palm::StdAppInfo;
+
+=head1 DESCRIPTION
+
+Many Palm applications use a common format for keeping track of categories.
+The C<Palm::StdAppInfo> class deals with this common format:
+
+	$pdb = new Palm::PDB;
+	$pdb->Load("myfile.pdb");
+
+	@categories  = @{ $pdb->{appinfo}{categories} };
+	$lastUniqueID =   $pdb->{appinfo}{lastUniqueID};
+	$other        =   $pdb->{appinfo}{other};
+
+where:
+
+C<@categories> is an array of references-to-hash:
+
+=over 4
+
+=item C<$cat = $categories[0];>
+
+=item C<$cat-E<gt>{name}>
+
+The name of the category, a string of at most 16 characters.
+
+=item C<$cat-E<gt>{id}>
+
+The category ID, an integer in the range 0-255. Each category has a
+unique ID. By convention, 0 is reserved for the "Unfiled" category;
+IDs assigned by the Palm are in the range 1-127, and IDs assigned by
+the desktop are in the range 128-255.
+
+=item C<$cat-E<gt>{renamed}>
+
+A boolean. This field is true iff the category has been renamed since
+the last sync.
+
+=back
+
+C<$lastUniqueID> is (I think) the last category ID that was assigned.
+
+C<$other> is any data that follows the category list in the AppInfo
+block. If you're writing a helper class for a PDB that includes a
+category list, you should parse this field to get any data that
+follows the category list; you should also make sure that this field
+is initialized before you call C<&Palm::StdAppInfo::pack_AppInfo>.
+
+=head2 APPINFO_PADDING
+
+Normally, the AppInfo block includes a byte of padding at the end, to
+bring its length to an even number. However, some databases use this
+byte for data.
+
+If your database uses the padding byte for data, then your
+C<&ParseAppInfoBlock> method (see L<"SYNOPSIS">) should call
+C<&parse_StdAppInfo> with a true $nopadding argument.
+
+If, for whatever reason, you wish to inherit
+C<&StdAppInfo::ParseAppInfoBlock>, then add
+
+    use constant APPINFO_PADDING => 0;
+
+to your handler package, to tell it that the padding byte is really
+data.
+
+=head1 FUNCTIONS
+
+=head2 seed_StdAppInfo
+
+    &Palm::StdAppInfo::seed_StdAppInfo(\%appinfo);
+
+Creates the standard fields in an existing AppInfo hash. Usually used
+to ensure that a newly-created AppInfo block contains an initialized
+category array:
+
+	my $appinfo = {};
+
+	&Palm::StdAppInfo::seed_StdAppInfo($appinfo);
+
+Note: this is not a method.
+
+=head2 newStdAppInfo
+
+    $appinfo = Palm::StdAppInfo->newStdAppInfo;
+
+Like C<seed_StdAppInfo>, but creates an AppInfo hash and returns a
+reference to it.
+
+=head2 new
+
+    $pdb = new Palm::StdAppInfo;
+
+Create a new PDB, initialized with nothing but a standard AppInfo block.
+
+There are very few reasons to use this, and even fewer good ones. If
+you're writing a helper class to parse some PDB format that contains a
+category list, then you should make that helper class a subclass of
+C<Palm::StdAppInfo>.
+
+=head2 parse_StdAppInfo
+
+    $len = &Palm::StdAppInfo::parse_StdAppInfo(\%appinfo, $data, $nopadding);
+
+This function (this is not a method) is intended to be called from
+within a PDB helper class's C<ParseAppInfoBlock> method.
+
+C<parse_StdAppInfo()> parses a standard AppInfo block from the raw
+data C<$data> and fills in the fields in C<%appinfo>. It returns the
+number of bytes parsed.
+
+C<$nopadding> is optional, and defaults to false. Normally, the
+AppInfo block includes a padding byte at the end. If C<$nopadding> is
+true, then C<&parse_StdAppInfo> assumes that the padding byte is
+application data, and includes it in C<$appinfo{'other'}>, so that the
+caller can parse it.
+
+=head2 ParseAppInfoBlock
+
+    $pdb = new Palm::StdAppInfo;
+    $pdb->ParseAppInfoBlock($data);
+
+If your application's AppInfo block contains standard category support
+and nothing else, you may choose to just inherit this method instead
+of writing your own C<ParseAppInfoBlock> method. Otherwise, see the
+example in L<"SYNOPSIS">.
+
+=head2 pack_StdAppInfo
+
+    $data = &Palm::StdAppInfo::pack_StdAppInfo(\%appinfo);
+
+This function (this is not a method) is intended to be called from
+within a PDB helper class's C<PackAppInfoBlock> method.
+
+C<pack_StdAppInfo> takes an AppInfo hash and packs it as a string of
+raw data that can be written to a PDB.
+
+Note that if you're using this inside a helper class's
+C<PackAppInfoBlock> method, you should make sure that
+C<$appinfo{other}> is properly initialized before you call
+C<&Palm::StdAppInfo::pack_StdAppInfo>.
+
+C<$nopadding> is optional, and defaults to false. Normally, the
+AppInfo block includes a byte of padding at the end. If C<$nopadding>
+is true, then C<&pack_StdAppInfo> doesn't include this byte of
+padding, so that the application can use it.
+
+=head2 PackAppInfoBlock
+
+    $pdb = new Palm::StdAppInfo;
+    $data = $pdb->PackAppInfoBlock();
+
+If your application's AppInfo block contains standard category support
+and nothing else, you may choose to just inherit this method instead
+of writing your own C<PackAppInfoBlock> method. Otherwise, see the
+example in L<"SYNOPSIS">.
+
+=head2 addCategory
+
+    $pdb->addCategory($name [, $id [, $renamed]]);
+
+Adds a category to $pdb.
+
+The $name argument specifies the new category's name.
+
+The optional $id argument specifies the new category's numeric ID; if
+omitted or undefined, &addCategory will pick one.
+
+The optional $renamed argument is a boolean value indicating whether
+the new category should be marked as having been modified. This
+defaults to true since, conceptually, &addCategory doesn't really add
+a category: it finds one whose name happens to be empty, and renames
+it.
+
+Returns a true value if successful, false otherwise. In case of
+failure, &addCategory sets $Palm::StdAppInfo::error to an error
+message.
+
+=head2 deleteCategory
+
+    $pdb->deleteCategory($name);
+
+Deletes the category with name $name. Actually, though, it doesn't
+delete the category: it just changes its name to the empty string, and
+marks the category as renamed.
+
+=head2 renameCategory
+
+    $pdb->renameCategory($oldname, $newname);
+
+Renames the category named $oldname to $newname.
+
+If successful, returns a true value. If there is no category named
+$oldname, returns a false value and sets $Palm::StdAppInfo::error to
+an error message.
 
 =head1 SEE ALSO
 
-Palm::PDB(3)
+L<Palm::PDB>
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Palm::StdAppInfo requires no configuration files or environment variables.
+
+=head1 INCOMPATIBILITIES
+
+None reported.
+
+=head1 BUGS AND LIMITATIONS
+
+No bugs have been reported.
+
+=head1 AUTHOR
+
+Andrew Arensburger C<< <arensb AT ooblick.com> >>
+
+Currently maintained by Christopher J. Madsen C<< <perl AT cjmweb.net> >>
+
+Please report any bugs or feature requests
+to S<C<< <bug-Palm AT rt.cpan.org> >>>
+or through the web interface at
+L<< http://rt.cpan.org/Public/Bug/Report.html?Queue=Palm >>.
+
+You can follow or contribute to p5-Palm's development at
+L<< https://github.com/madsen/p5-Palm >>.
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2003 by Andrew Arensburger & Alessandro Zummo.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENSE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
 
 =cut

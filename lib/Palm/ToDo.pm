@@ -1,86 +1,32 @@
-# Palm::ToDo.pm
-# 
-# Perl class for dealing with Palm ToDo databases. 
+package Palm::ToDo;
+#
+# ABSTRACT: Handler for Palm ToDo databases
 #
 #	Copyright (C) 1999, 2000, Andrew Arensburger.
-#	You may distribute this file under the terms of the Artistic
-#	License, as specified in the README file.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the same terms as Perl itself.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See either the
+# GNU General Public License or the Artistic License for more details.
 
 # XXX - Bug: apparently, the first ToDo item shows up with a category
 # of "unfiled"
 
 use strict;
-package Palm::ToDo;
 use Palm::Raw();
 use Palm::StdAppInfo();
 
 use vars qw( $VERSION @ISA );
 
 # One liner, to allow MakeMaker to work.
-$VERSION = '1.013';
+$VERSION = '1.014';
+# This file is part of Palm 1.014 (August 2, 2014)
 
 @ISA = qw( Palm::StdAppInfo Palm::Raw );
 
-=head1 NAME
-
-Palm::ToDo - Handler for Palm ToDo databases.
-
-=head1 SYNOPSIS
-
-    use Palm::ToDo;
-
-=head1 DESCRIPTION
-
-The ToDo PDB handler is a helper class for the Palm::PDB package. It
-parses ToDo databases.
-
-=head2 AppInfo block
-
-The AppInfo block begins with standard category support. See
-L<Palm::StdAppInfo> for details.
-
-Other fields include:
-
-    $pdb->{appinfo}{dirty_appinfo}
-    $pdb->{appinfo}{sortOrder}
-
-I don't know what these are.
-
-=head2 Sort block
-
-    $pdb->{sort}
-
-This is a scalar, the raw data of the sort block.
-
-=head2 Records
-
-    $record = $pdb->{records}[N]
-
-    $record->{due_day}
-    $record->{due_month}
-    $record->{due_year}
-
-The due date of the ToDo item. If the item has no due date, these are
-undefined.
-
-    $record->{completed}
-
-This is defined and true iff the item has been completed.
-
-    $record->{priority}
-
-An integer. The priority of the item.
-
-    $record->{description}
-
-A text string. The description of the item.
-
-    $record->{note}
-
-A text string. The note attached to the item. Undefined if the item
-has no note.
-
-=cut
 #'
 
 sub import
@@ -90,16 +36,6 @@ sub import
 		);
 }
 
-=head2 new
-
-  $pdb = new Palm::ToDo;
-
-Create a new PDB, initialized with the various Palm::ToDo fields
-and an empty record list.
-
-Use this method if you're creating a ToDo PDB from scratch.
-
-=cut
 #'
 
 # new
@@ -137,16 +73,6 @@ sub new
 	return $self;
 }
 
-=head2 new_Record
-
-  $record = $pdb->new_Record;
-
-Creates a new ToDo record, with blank values for all of the fields.
-
-C<new_Record> does B<not> add the new record to C<$pdb>. For that,
-you want C<$pdb-E<gt>append_Record>.
-
-=cut
 
 # new_Record
 # Create a new, initialized record.
@@ -295,24 +221,152 @@ sub PackRecord
 }
 
 1;
+
 __END__
 
-=head1 SOURCE CONTROL
+=head1 NAME
 
-The source is in Github:
+Palm::ToDo - Handler for Palm ToDo databases
 
-	http://github.com/briandfoy/p5-Palm/tree/master
-	
-=head1 AUTHOR
+=head1 VERSION
 
-Alessandro Zummo, C<< <a.zummo@towertech.it> >>
+This document describes version 1.014 of
+Palm::ToDo, released August 2, 2014
+as part of Palm version 1.014.
 
-Currently maintained by brian d foy, C<< <bdfoy@cpan.org> >>
+=head1 SYNOPSIS
+
+    use Palm::ToDo;
+
+=head1 DESCRIPTION
+
+The ToDo PDB handler is a helper class for the Palm::PDB package. It
+parses ToDo databases.
+
+=head2 AppInfo block
+
+The AppInfo block begins with standard category support. See
+L<Palm::StdAppInfo> for details.
+
+Other fields include:
+
+    $pdb->{appinfo}{dirty_appinfo}
+    $pdb->{appinfo}{sortOrder}
+
+I don't know what these are.
+
+=head2 Sort block
+
+    $pdb->{sort}
+
+This is a scalar, the raw data of the sort block.
+
+=head2 Records
+
+    $record = $pdb->{records}[N]
+
+    $record->{due_day}
+    $record->{due_month}
+    $record->{due_year}
+
+The due date of the ToDo item. If the item has no due date, these are
+undefined.
+
+    $record->{completed}
+
+This is defined and true iff the item has been completed.
+
+    $record->{priority}
+
+An integer. The priority of the item.
+
+    $record->{description}
+
+A text string. The description of the item.
+
+    $record->{note}
+
+A text string. The note attached to the item. Undefined if the item
+has no note.
+
+=head2 new
+
+  $pdb = new Palm::ToDo;
+
+Create a new PDB, initialized with the various Palm::ToDo fields
+and an empty record list.
+
+Use this method if you're creating a ToDo PDB from scratch.
+
+=head2 new_Record
+
+  $record = $pdb->new_Record;
+
+Creates a new ToDo record, with blank values for all of the fields.
+
+C<new_Record> does B<not> add the new record to C<$pdb>. For that,
+you want C<$pdb-E<gt>append_Record>.
 
 =head1 SEE ALSO
 
-Palm::PDB(3)
+L<Palm::PDB>
 
-Palm::StdAppInfo(3)
+L<Palm::StdAppInfo>
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Palm::ToDo requires no configuration files or environment variables.
+
+=head1 INCOMPATIBILITIES
+
+None reported.
+
+=head1 BUGS AND LIMITATIONS
+
+No bugs have been reported.
+
+=head1 AUTHOR
+
+Andrew Arensburger C<< <arensb AT ooblick.com> >>
+
+Currently maintained by Christopher J. Madsen C<< <perl AT cjmweb.net> >>
+
+Please report any bugs or feature requests
+to S<C<< <bug-Palm AT rt.cpan.org> >>>
+or through the web interface at
+L<< http://rt.cpan.org/Public/Bug/Report.html?Queue=Palm >>.
+
+You can follow or contribute to p5-Palm's development at
+L<< https://github.com/madsen/p5-Palm >>.
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2003 by Andrew Arensburger & Alessandro Zummo.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENSE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
 
 =cut

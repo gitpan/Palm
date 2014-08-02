@@ -1,8 +1,6 @@
 #!/usr/bin/perl
 #
 # Dump a Palm PDB or PRC database.
-#
-# $Id: pdbdump,v 3.5 2002/04/10 00:58:28 arensb Exp $
 
 use strict;
 use Palm::PDB;
@@ -15,10 +13,9 @@ use Palm::Datebook;
 use Palm::Mail;
 use Palm::ToDo;
 
-use vars qw( $VERSION %PDBHandlers %PRCHandlers $hexdump );
+use vars qw( %PDBHandlers %PRCHandlers $hexdump );
 
-$VERSION = sprintf "%d.%03d_%03d_%03d",
-	'$Revision: 3.5 $ ' =~ m{(\d+)(?:\.(\d+))};
+our $VERSION = '1.014'; # VERSION
 
 *PDBHandlers = *Palm::PDB::PDBHandlers;
 *PRCHandlers = *Palm::PDB::PRCHandlers;
@@ -754,17 +751,23 @@ __END__
 
 pdbdump - Print the contents of a Palm PDB file
 
+=head1 VERSION
+
+This document describes version 1.014 of
+C<pdbdump>, released August 2, 2014
+as part of Palm version 1.014.
+
 =head1 SYNOPSIS
 
 C<pdbdump> I<[options]> F<filename>
 
 =head1 DESCRIPTION
 
-C<pdbdump> reads a PalmOS F<.pdb> file, parses it, and prints its
+C<pdbdump> reads a S<Palm OS> F<.pdb> file, parses it, and prints its
 contents. This includes both a hex dump of the raw data of each piece,
 and a human-readable list of the various values, insofar as possible.
 The aim of C<pdbdump> is to allow one to verify whether a particular
-file is a well-formed PalmOS database file and if not, where the error
+file is a well-formed S<Palm OS> database file and if not, where the error
 lies.
 
 If the database is of a known type, C<pdbdump> parses the AppInfo
@@ -792,15 +795,65 @@ helper modules.
 
 =back
 
-=head1 BUGS
+=head1 SEE ALSO
+
+L<Palm::PDB>
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+main requires no configuration files or environment variables.
+
+=head1 INCOMPATIBILITIES
+
+None reported.
+
+=head1 BUGS AND LIMITATIONS
 
 C<pdbdump> only recognizes record databases (C<.pdb> files), not
 resource databases (C<.prc> files).
 
-=head1 SEE ALSO
-
-Palm::PDB(3)
-
 =head1 AUTHOR
 
-Andrew Arensburger <arensb@ooblick.com>
+Andrew Arensburger C<< <arensb AT ooblick.com> >>
+
+Currently maintained by Christopher J. Madsen C<< <perl AT cjmweb.net> >>
+
+Please report any bugs or feature requests
+to S<C<< <bug-Palm AT rt.cpan.org> >>>
+or through the web interface at
+L<< http://rt.cpan.org/Public/Bug/Report.html?Queue=Palm >>.
+
+You can follow or contribute to p5-Palm's development at
+L<< https://github.com/madsen/p5-Palm >>.
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2003 by Andrew Arensburger & Alessandro Zummo.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENSE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+=cut
